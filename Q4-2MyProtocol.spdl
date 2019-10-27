@@ -1,6 +1,6 @@
 /* 
  * 3 person mutual authentication protocol using asymetric encryption 
- * This script will run in 'Scyther' the protocol analyzer developed by Cas Cremer 
+ * This script will run in 'Scyther' the protocol analyzer developed by Cas Cremers 
  */
 
 
