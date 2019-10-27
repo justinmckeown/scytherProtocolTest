@@ -1,0 +1,81 @@
+/* 
+ * 3 person mutual authentication protocol using asymetric encryption 
+ * This script will run in 'Scyther' the protocol analyzer developed by Cas Cremer 
+ */
+
+
+hashfunction h;
+usertype Key; 
+
+protocol protocol0(X, Y, Z)
+{
+	role X
+	{
+		fresh nx: Nonce;
+		
+		fresh kx: Key;
+		var ky: Key;
+		var kz: Key;
+		var ny: Nonce;
+
+		send_1(X, Y, {nx, X, Z}pk(Y));
+		recv_4(Y, X, {h(nx, ny, kz, ky,Y), Y, ny, kz, ky}pk(X));
+		send_5(X, Y, {h(nx, ny)}ky); 
+
+		send_7(X, Z, {h(nx, ky)}kz);
+		
+		claim_x1(X, Alive, Y);
+		claim_x2(X, Alive, Z);
+		claim_x3(X, Nisynch); 
+		claim_x4(X, Secret, ky);
+		claim_x5(X, Secret, kz);
+}
+
+	role Y
+	{
+		fresh ny: Nonce;
+		fresh ky: Key;
+		var nx: Nonce;
+		var nz: Nonce;
+		var kz: Key;
+		
+
+		recv_1(X, Y, {nx, X, Z}pk(Y));
+		send_2(Y, Z, {ny, Y, Z, X}pk(Z)); 
+		recv_3(Z, Y, {h(ny, nz, kz, Z), Z, nz, kz}pk(Y)); 
+		send_4(Y, X, {h(nx, ny, kz, ky, Y), Y, ny, kz, ky}pk(X));
+		recv_5(X, Y, {h(nx, ny)}ky); 
+		
+		
+		send_6(Y, Z, {h(ny, nz, kz, ky)}kz);
+
+		claim_y1(Y, Alive, X);
+		claim_x2(Y, Alive, Z);
+		claim_y3(Y, Nisynch);
+		claim_y4(Y, Secret, ky);
+		claim_y5(Y, Secret, kz);
+	}
+
+	role Z
+	{
+		fresh nz: Nonce;
+		fresh kz: Key;
+		var nx: Nonce;
+		var ny: Nonce;
+		var ky: Key;
+		
+		
+		recv_2(Y, Z, {ny, Y, Z, X}pk(Z)); 
+		send_3(Z, Y, {h(ny, nz, kz, Z), Z, nz, kz}pk(Y)); 
+		recv_6(Y, Z, {h(ny, nz, kz, ky)}kz);
+		recv_7(X, Z, {h(nx, ky)}kz);
+
+		claim_z1(Z, Alive, Y);
+		claim_z2(Z, Alive, X);
+		claim_z3(Z, Nisynch);
+		claim_x4(Z, Secret, ky);
+		claim_x5(Z, Secret, kz);
+		
+		
+	}
+}
